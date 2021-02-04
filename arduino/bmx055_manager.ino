@@ -191,12 +191,12 @@ void encode_and_send_imu_info(){
     float_to_char_array(zAccl, zAccl_char_array);
 
     Packetizer::Packet p_imu {0x00, {
-            xGyro_char_array[0], xGyro_char_array[1], xGyro_char_array[2], xGyro_char_array[3],
-            yGyro_char_array[0], yGyro_char_array[1], yGyro_char_array[2], yGyro_char_array[3],
-            zGyro_char_array[0], zGyro_char_array[1], zGyro_char_array[2], zGyro_char_array[3],
             xAccl_char_array[0], xAccl_char_array[1], xAccl_char_array[2], xAccl_char_array[3],
             yAccl_char_array[0], yAccl_char_array[1], yAccl_char_array[2], yAccl_char_array[3],
             zAccl_char_array[0], zAccl_char_array[1], zAccl_char_array[2], zAccl_char_array[3],
+            xGyro_char_array[0], xGyro_char_array[1], xGyro_char_array[2], xGyro_char_array[3],
+            yGyro_char_array[0], yGyro_char_array[1], yGyro_char_array[2], yGyro_char_array[3],
+            zGyro_char_array[0], zGyro_char_array[1], zGyro_char_array[2], zGyro_char_array[3]
         }};
 
     const auto& p_buff = Packetizer::encode(p_imu.data.data(), p_imu.data.size());
@@ -217,6 +217,7 @@ void loop() {
 
   quaternion_filtering();
   //print_sensor_value_triplet("RPY Degrees", roll, pitch, yaw);
+
   encode_and_send_imu_info();
 
   delay(1);
