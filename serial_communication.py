@@ -1,6 +1,6 @@
 import argparse
 from scripts.communication import IMUSerialCommunication
-import time
+from datetime import datetime
 
 
 def parse_args():
@@ -15,8 +15,9 @@ def main(port_name: str, baudrate: int):
     serial_comm.open()
     while True:
         if serial_comm.update():
+            dt_now = datetime.now()
             gyro_angle_x, gyro_angle_y, gyro_angle_z = serial_comm.gyroscope
-            print(f"Gyroscope[deg]: {gyro_angle_x}, {gyro_angle_y}, {gyro_angle_z}")
+            print(f"[{dt_now}] Gyroscope : {gyro_angle_x:3.5} [deg], {gyro_angle_y:3.5} [deg], {gyro_angle_z:3.5} [deg]")
 
 
 if __name__ == "__main__":

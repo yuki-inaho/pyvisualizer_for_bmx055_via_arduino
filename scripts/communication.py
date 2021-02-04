@@ -1,6 +1,7 @@
 import serial
 import struct
 from typing import NamedTuple, List
+from datetime import datetime
 import pdb
 
 SIZEOF_IMU_PACKET = 26  # size([xAccl, yAccl, zAccl, xGyro, yGyro, zGyro]) * sizeof(float) + "overhead byte" + "delimiter byte" = 6*4 + 1 + 1 = 26
@@ -25,9 +26,13 @@ class IMUSerialCommunication:
         self._ser.close()
 
     def open(self):
+        dt_now = datetime.now()
+        print(f"[{dt_now}] The connection between GXM550 is established")
         self._ser.open()
 
     def close(self):
+        dt_now = datetime.now()
+        print(f"[{dt_now}] The connection between GXM550 is closed")
         self._ser.close()
 
     def update(self) -> bool:
