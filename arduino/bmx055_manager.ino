@@ -1,5 +1,8 @@
+// TODO: rethink how to use Packetizer
+
 #include <Wire.h>
 #include <math.h>
+#include <Packetizer.h>
 #include <MadgwickAHRS.h>
 Madgwick MadgwickFilter;
 
@@ -11,6 +14,8 @@ Madgwick MadgwickFilter;
 #define ACCL 2
 #define MAG 3
 #define XYZ_ROTATION 4
+
+#define SIZEOF_FLOAT sizeof(float)
 
 float xAccl = 0.00;
 float yAccl = 0.00;
@@ -145,6 +150,7 @@ void quaternion_filtering(){
   yaw = MadgwickFilter.getYaw();
 }
 
+
 void setup() {
   Wire.begin();  // Wire (Arduino-I2C)
   Serial.begin(115200);
@@ -153,6 +159,7 @@ void setup() {
   // Sampling Frequency = 42 [Hz]; https://courses.cs.washington.edu/courses/cse466/14au/labs/l4/madgwick_internal_report.pdf
   MadgwickFilter.begin(30);
 }
+
 
 void print_sensor_value_triplet(String sensor_type, float x_value, float y_value, float z_value){
   Serial.print(sensor_type);
@@ -163,6 +170,45 @@ void print_sensor_value_triplet(String sensor_type, float x_value, float y_value
   Serial.print(",");
   Serial.println(z_value);
 }
+
+
+void float_to_char_array(float fvar, unsigned char char_array[]){
+    memcpy(char_array, &fvar, SIZEOF_FLOAT);
+}
+
+void encode_and_send_imu_info(){
+    float pseudo_xGyro = 1.0;
+    float pseudo_yGyro = 2.0;
+    float pseudo_zGyro = 3.0;
+    float pseudo_xAccl = 4.0;
+    float pseudo_yAccl = 5.0;
+    float pseudo_zAccl = 6.0;
+
+    unsigned char xGyro_char_array[SIZEOF_FLOAT], yGyro_char_array[SIZEOF_FLOAT], zGyro_char_array[SIZEOF_FLOAT];
+    unsigned char xAccl_char_array[SIZEOF_FLOAT], yAccl_char_array[SIZEOF_FLOAT], zAccl_char_array[SIZEOF_FLOAT];
+
+    // COBS encoding
+    float_to_char_array(pseudo_xGyro, xGyro_char_array);
+    float_to_char_array(pseudo_yGyro, yGyro_char_array);
+    float_to_char_array(pseudo_zGyro, zGyro_char_array);
+    float_to_char_array(pseudo_xAccl, xAccl_char_array);
+    float_to_char_array(pseudo_yAccl, yAccl_char_array);
+    float_to_char_array(pseudo_zAccl, zAccl_char_array);
+
+    Packetizer::Packet p_imu {0x00, {
+            xGyro_char_array[0], xGyro_char_array[1], xGyro_char_array[2], xGyro_char_array[3],
+            yGyro_char_array[0], yGyro_char_array[1], yGyro_char_array[2], yGyro_char_array[3],
+            zGyro_char_array[0], zGyro_char_array[1], zGyro_char_array[2], zGyro_char_array[3],
+            xAccl_char_array[0], xAccl_char_array[1], xAccl_char_array[2], xAccl_char_array[3],
+            yAccl_char_array[0], yAccl_char_array[1], yAccl_char_array[2], yAccl_char_array[3],
+            zAccl_char_array[0], zAccl_char_array[1], zAccl_char_array[2], zAccl_char_array[3],
+        }};
+
+    const auto& p_buff = Packetizer::encode(p_imu.data.data(), p_imu.data.size());
+    //Serial.print("encoded = "); for (const auto& p : p_buff.data) { Serial.print(p, HEX); Serial.print(" "); } Serial.println();  //for debugging
+    for (const auto& p : p_buff.data) { Serial.print(p, HEX); Serial.print(" "); } Serial.println();
+}
+
 
 void loop() {
   BMX055_Gyro();
@@ -175,7 +221,8 @@ void loop() {
   //print_sensor_value_triplet("MAG:", xMag, yMag, zMag);
 
   quaternion_filtering();
-  print_sensor_value_triplet("RPY Degrees", roll, pitch, yaw);
+  //print_sensor_value_triplet("RPY Degrees", roll, pitch, yaw);
+  encode_and_send_imu_info();
 
   delay(10);
 }
