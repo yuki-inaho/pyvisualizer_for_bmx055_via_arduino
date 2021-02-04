@@ -39,7 +39,7 @@ void write_setting(byte Addr, byte register_addr, byte setting_var, uint32_t del
 void BMX055_Init() {
   //write_setting(Addr_Accl, 0x0F, 0x05); // PMU_Range register: Range = +/- 4 [g]
   write_setting(Addr_Accl, 0x0F, 0x03); // PMU_Range register: Range = +/- 2 [g]
-  write_setting(Addr_Accl, 0x10, 0x08); // PMU_BW register: Bandwidth = 7.81 [Hz]
+  write_setting(Addr_Accl, 0x10, 0x0B); // PMU_BW register: Bandwidth = 62.5 [Hz]
   write_setting(Addr_Accl, 0x11, 0x00); // PMU_LPW register: Normal mode, Sleep, duration = 0.5 [ms]
 
   write_setting(Addr_Gyro, 0x0F, 0x04); // Range register: Full scale = +/- 125 [degree/s]
@@ -150,7 +150,7 @@ void setup() {
   Serial.begin(115200);
   BMX055_Init();
   delay(300);
-  // Sampling Frequency = 30 [Hz]; https://courses.cs.washington.edu/courses/cse466/14au/labs/l4/madgwick_internal_report.pdf
+  // Sampling Frequency = 42 [Hz]; https://courses.cs.washington.edu/courses/cse466/14au/labs/l4/madgwick_internal_report.pdf
   MadgwickFilter.begin(30);
 }
 
@@ -176,4 +176,6 @@ void loop() {
 
   quaternion_filtering();
   print_sensor_value_triplet("RPY Degrees", roll, pitch, yaw);
+
+  delay(10);
 }
