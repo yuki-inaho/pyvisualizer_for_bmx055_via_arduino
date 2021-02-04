@@ -48,7 +48,12 @@ class IMUSerialCommunication:
             byte_list = splitted_packet_list[k : k + 4]
             if len(byte_list) < 4:
                 continue
-            decoded_value = struct.unpack("<f", bytearray([int(word, 16) for word in byte_list]))[0]
+
+            # FIXME: byte must be in range(0, 256)
+            try:
+                decoded_value = struct.unpack("<f", bytearray([int(word, 16) for word in byte_list]))[0]
+            except struct.error as err:
+                print(err)
             new_information[name] = decoded_value
 
         self._imu_info = IMUInformation(
