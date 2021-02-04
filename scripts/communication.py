@@ -56,5 +56,17 @@ class IMUSerialCommunication:
         return is_recieved_data_valid
 
     @property
-    def imu_informations(self) -> IMUInformation:
+    def data_status(self) -> bool:
+        return self._imu_info.is_valid
+
+    @property
+    def data(self) -> IMUInformation:
         return self._imu_info
+
+    @property
+    def gyroscope(self) -> List[float]:
+        return [self._imu_info.xGyro, self._imu_info.yGyro, self._imu_info.zGyro] # by [Degrees]
+
+    @property
+    def accelerometer(self) -> List[float]:
+        return [self._imu_info.xAccl, self._imu_info.yAccl, self._imu_info.zAccl]
