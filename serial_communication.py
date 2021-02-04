@@ -14,7 +14,9 @@ def main(port_name: str, baudrate: int):
     serial_comm = IMUSerialCommunication(port_name, baudrate)
     serial_comm.open()
     while True:
-        serial_comm.update()
+        if serial_comm.update():
+            gyro_angle_x, gyro_angle_y, gyro_angle_z = serial_comm.gyroscope
+            print(f"Gyroscope[deg]: {gyro_angle_x}, {gyro_angle_y}, {gyro_angle_z}")
 
 
 if __name__ == "__main__":
