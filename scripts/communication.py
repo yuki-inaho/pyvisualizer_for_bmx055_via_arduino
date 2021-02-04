@@ -1,9 +1,6 @@
 import serial
-from cobs import cobs
-from typing import NamedTuple, List
 import struct
-
-import pdb
+from typing import NamedTuple, List
 
 
 SIZEOF_IMU_PACKET = 26  # size([xAccl, yAccl, zAccl, xGyro, yGyro, zGyro]) * sizeof(float) + "overhead byte" + "delimiter byte" = 6*4 + 1 + 1 = 26
