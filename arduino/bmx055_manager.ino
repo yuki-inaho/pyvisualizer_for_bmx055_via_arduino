@@ -177,23 +177,16 @@ void float_to_char_array(float fvar, unsigned char char_array[]){
 }
 
 void encode_and_send_imu_info(){
-    float pseudo_xGyro = 1.0;
-    float pseudo_yGyro = 2.0;
-    float pseudo_zGyro = 3.0;
-    float pseudo_xAccl = 4.0;
-    float pseudo_yAccl = 5.0;
-    float pseudo_zAccl = 6.0;
-
     unsigned char xGyro_char_array[SIZEOF_FLOAT], yGyro_char_array[SIZEOF_FLOAT], zGyro_char_array[SIZEOF_FLOAT];
     unsigned char xAccl_char_array[SIZEOF_FLOAT], yAccl_char_array[SIZEOF_FLOAT], zAccl_char_array[SIZEOF_FLOAT];
 
     // COBS encoding
-    float_to_char_array(pseudo_xGyro, xGyro_char_array);
-    float_to_char_array(pseudo_yGyro, yGyro_char_array);
-    float_to_char_array(pseudo_zGyro, zGyro_char_array);
-    float_to_char_array(pseudo_xAccl, xAccl_char_array);
-    float_to_char_array(pseudo_yAccl, yAccl_char_array);
-    float_to_char_array(pseudo_zAccl, zAccl_char_array);
+    float_to_char_array(xGyro, xGyro_char_array);
+    float_to_char_array(yGyro, yGyro_char_array);
+    float_to_char_array(zGyro, zGyro_char_array);
+    float_to_char_array(xAccl, xAccl_char_array);
+    float_to_char_array(yAccl, yAccl_char_array);
+    float_to_char_array(zAccl, zAccl_char_array);
 
     Packetizer::Packet p_imu {0x00, {
             xGyro_char_array[0], xGyro_char_array[1], xGyro_char_array[2], xGyro_char_array[3],
