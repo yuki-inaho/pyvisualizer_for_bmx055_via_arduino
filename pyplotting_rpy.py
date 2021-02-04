@@ -38,16 +38,13 @@ def main(port_name: str, baudrate: int):
     serial_comm.open()
 
     layout = [
-        [sg.Text("Gyroscope")],
         [sg.Canvas(key="-CANVAS-")],
     ]
     window = sg.Window("Gyroscope Demo", layout, finalize=True, element_justification="center", font="Monospace 18")
 
     fig = plt.figure(figsize=(5, 4))
     ax = fig.add_subplot(111)
-    ax.set_ylim(-10, 10)
-
-    fig_agg = draw_figure(window["-CANVAS-"].TKCanvas, fig)
+    ax.set_ylim(-60, 60)
 
     gyro_x_deque = deque(maxlen=90)
     gyro_y_deque = deque(maxlen=90)
@@ -66,33 +63,37 @@ def main(port_name: str, baudrate: int):
     ax = fig.add_subplot(111)
     ax.set_xlabel("Angle [deg]")
     ax.set_ylabel("Elapsed time [s]")
+    plt.legend()
     ax.grid()
     fig_agg = draw_figure(canvas, fig)
 
-    start_time_seconds = time.time() % 60
+    start_time_seconds = round(time.time() * 10e6)
     while True:
         event, values = window.read(timeout=10)
-        current_time_seconds = time.time() % 60
+
+        dt_now = datetime.now()
+        current_time_seconds = round(time.time() * 10e6)
         diff_seconds = current_time_seconds - start_time_seconds
 
         if event in ("Exit", None):
             sys.exit(0)
 
         if serial_comm.update():
-            dt_now = datetime.now()
             gyro_angle_x, gyro_angle_y, gyro_angle_z = serial_comm.gyroscope
-            print(f"[{dt_now}] Gyroscope : {gyro_angle_x:3.5} [deg], {gyro_angle_y:3.5} [deg], {gyro_angle_z:3.5} [deg]")
+            print(f"[{dt_now}] Gyroscope : {gyro_angle_x:4.5} [deg], {gyro_angle_y:4.5} [deg], {gyro_angle_z:4.5} [deg]")
 
             gyro_x_deque.append(gyro_angle_x)
             gyro_y_deque.append(gyro_angle_y)
             gyro_z_deque.append(gyro_angle_z)
             time_deque.append(diff_seconds)
+        else:
+            print(f"[{dt_now}] IMU Update Failed...")
 
         ax.cla()
         ax.grid()
-        ax.plot(time_deque, gyro_x_deque, color="red")
-        ax.plot(time_deque, gyro_y_deque, color="green")
-        ax.plot(time_deque, gyro_z_deque, color="blue")
+        ax.plot(time_deque, gyro_x_deque, label="x", color="red")
+        ax.plot(time_deque, gyro_y_deque, label="y", color="green")
+        ax.plot(time_deque, gyro_z_deque, label="z", color="blue")
         fig_agg.draw()
 
     window.close()
